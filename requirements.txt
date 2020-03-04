@@ -1,0 +1,6 @@
+flask
+virustotal3
+requests
+pefile
+capstone
+flask_sqlalchemy
