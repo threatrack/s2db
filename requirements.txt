@@ -4,3 +4,4 @@ requests
 pefile
 capstone
 flask_sqlalchemy
+flask-bootstrap

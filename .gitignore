@@ -139,5 +139,5 @@ dmypy.json
 samples/*
 !samples/.gitkeep
 
-
+*.exe
 

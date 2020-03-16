@@ -29,8 +29,8 @@ for s in strings_json:
 	# FIXME: we "loose" the encoding in s['type'] here
 	# so a utf-8 strings will be treated the same as the same string but in ascii
 	#s = base64.b64decode(s['string']).decode('utf-8')
-	s = s['string'].encode('utf-8')
-	strings.append( [hashlib.sha256(s).digest(), s] )
+	s = s['string']
+	strings.append( [hashlib.sha256(s.encode('utf-8')).digest(), s] )
 
 results = r2.cmd('pdbj @@ *').split('\n')
 results.remove('')
@@ -97,20 +97,24 @@ db_base = automap_base()
 db_engine = sqlalchemy.create_engine(config['db']['path'])
 db_base.prepare(db_engine, reflect=True)
 db_bin = db_base.classes.bin
-db_bb = db_base.classes.bb
+db_b2b = db_base.classes.b2b
+db_block = db_base.classes.block
 
 db_session = Session(db_engine)
 
 db_session.merge(db_bin(bin=bin_sha256,name=bin_path))
 
-#for s in strings:
-	#print(bin_path +'\t'+ s[0] +'\t'+ s[1])
-#	session.merge()
+for s in strings:
+	#print(bin_path +'\t'+ s[0].hex() +'\t'+ s[1])
+	db_session.merge(db_b2b(bin=bin_sha256,block=s[0]))
+	db_session.merge(db_block(block=s[0],type='string',rep=s[1]))
 
 for b in masked_bb:
-	#print(bin_path +'\t'+ b[0].hex() +'\t'+ b[1].replace('\n','; '))
-	db_session.merge(db_bb(bin=bin_sha256,bb=b[0]))
+	#print(bin_path +'\t'+ b[0].hex() +'\t'+ b[1])
+	db_session.merge(db_b2b(bin=bin_sha256,block=b[0]))
+	db_session.merge(db_block(block=b[0],type='basicblock',rep=b[1]))
 
 db_session.commit()
 
+print(bin_sha256.hex()+': success')
 

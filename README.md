@@ -22,7 +22,7 @@ Then run:
 for s in samples/*; do python3 b3db/extract_features.py $s; done
 mysql -ub3user -p"$DATABASE_USER_PASSWORD" <<SETASREF
 use b3
-update bin set ref = true;
+update bin set isref = true;
 SETASREF
 ```
 
@@ -55,9 +55,10 @@ update bin set ref = true where bin=unhex('32159d2a16397823bc882ddd3cd77ecdbabe0
 
 ## TODO
 
+- Better workflow.
+- Better import service.
+- Better Flask App ... so it can actually run as a service.
 - Make API.
-- Improve Flask App (it's really bad).
-- Enable string import.
 - Check IDA and Ghidra basic block models for compatibility to ease plugin development employing our API for basic block lookup.
 - So much more...
 

@@ -29,15 +29,29 @@ create table bin (
 	bin binary(32) not null,
 	name varchar(255) character set utf8 not null,
 	ref boolean not null default false,
-	processed boolean not null default false,
 	primary key (bin)
 );
 
-create table bb (
+create table b2b (
 	bin binary(32) not null,
-	bb  binary(32) not null,
-	primary key (bin,bb)
+	block binary(32) not null,
+	primary key (bin,block)
+);
+
+create table block (
+	block binary(32) not null,
+	type varchar(16) not null,
+	rep varchar(255) character set utf8 not null,
+	primary key (block)
 );
 DBSETUP
+
+
+# bootstrap stuff
+cd b3db/flask/static
+wget https://github.com/twbs/bootstrap/releases/download/v4.4.1/bootstrap-4.4.1-dist.zip -c
+unzip -o bootstrap-4.4.1-dist.zip
+mkdir jquery-3.4.1-dist/js
+wget https://code.jquery.com/jquery-3.4.1.min.js -O jquery-3.4.1-dist/js/jquery-3.4.1.min.js -c
 
 

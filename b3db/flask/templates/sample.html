@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block head %}
+	<title>b3db: Bad Basic Block Database</title>
+{% endblock %}
+      
+{% block main %}
+	<h5><a href="blocks?h={{ sample|safe }}">{{ sample|safe }}</a></h5>
+	<table class="table table-bordered table-hover">
+	<thead class="thead-dark">
+		<tr>
+			<th scope="col">Software</th>
+			<th scope="col">Shared basic blocks</th>
+		</tr>
+	</thead>
+	<tbody>
+	{% for entry in entries %}
+		<tr>
+			<td>{{ entry.names|safe }}</td>
+			<td>{{ entry.count|safe }}</td>
+		</tr>
+	{% endfor %}
+	</tbody>
+	</table>
+{% endblock %}
+
