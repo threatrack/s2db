@@ -13,7 +13,11 @@ Eventually, this is planned to be moved entirely to Python and not require bash 
 
 ## Usage
 
-### Batch import reference set
+### Config file
+
+Edit `b2db.ini`.
+
+### Batch import reference set from command line
 
 Place your reference samples in the `samples` folder.
 Then run:
@@ -27,6 +31,18 @@ SETASREF
 ```
 
 **TODO:** Allow adding uploaded samples to reference set via Web app.
+
+### Running the web service 
+
+```
+python3 app.py
+```
+
+And in parallel you must run:
+
+```
+python3 import_service.py 2>&1 > /home/user/b3db.log
+```
 
 ### Check individual file
 
