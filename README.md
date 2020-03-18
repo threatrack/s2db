@@ -70,7 +70,7 @@ Otherwise the Python error output is written to the log, which you can report vi
 
 3. Search for the uploaded sample's hash (top right search box):
 
-![Search sample hash](images/05-sample.png)
+![Search sample hash](images/06-sample.png)
 
 4. Optionally, click on sample hash to get to blocks views, which displays the shared strings and assembler code:
 
