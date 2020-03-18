@@ -141,3 +141,6 @@ samples/*
 
 *.exe
 
+bootstrap-4.4.1-dist/
+jquery-3.4.1-dist/
+

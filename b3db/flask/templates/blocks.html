@@ -9,13 +9,15 @@
 	<table class="table table-bordered table-hover">
 	<thead class="thead-dark">
 		<tr>
-			<th scope="col">Basic blocks</th>
+			<th scope="col">Software</th>
+			<th scope="col">Shared code / data</th>
 		</tr>
 	</thead>
 	<tbody>
 	{% for entry in entries %}
 		<tr>
-			<td><a href="block?h={{ entry.block|safe }}">{{ entry.block|safe }}</a></td>
+			<td>{{ entry.names|safe }}</td>
+			<td><pre>{{ entry.rep|safe }}</pre></td>
 		</tr>
 	{% endfor %}
 	</tbody>

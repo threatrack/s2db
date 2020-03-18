@@ -44,18 +44,31 @@ def ref():
 	entries = cur.fetchall()
 	return render_template('ref.html', entries=entries)
 
+
 @app.route('/samples')
 def samples():
 	cur = db.session.execute('select name, hex(bin) as bin from bin where ref = False order by name asc')
 	entries = cur.fetchall()
 	return render_template('samples.html', entries=entries)
 
+
 @app.route('/blocks', methods=['GET'])
 def blocks():
 	sample = request.args.get('h')
-	cur = db.session.execute('select hex(block) as block from b2b where bin=unhex(:bin)', {'bin': sample})
+	cur = db.session.execute("""
+select names, rep from (
+	select group_concat(distinct ref.name) as names, ref.block as block from (
+		select name,block from bin join b2b on bin.bin = b2b.bin where bin.ref=true
+	) as ref
+	join b2b as test on ref.block = test.block where test.bin=unhex(:bin)
+	group by ref.block
+) as res
+join block on res.block = block.block
+order by block.type desc
+	""", {'bin': sample})
 	entries = cur.fetchall()
 	return render_template('blocks.html', sample=sample, entries=entries)
+
 
 @app.route('/block', methods=['GET'])
 def block():
@@ -64,13 +77,14 @@ def block():
 	entries = cur.fetchall()
 	return render_template('block.html', block=h, entries=entries)
 
+
 @app.route('/sample', methods=['GET'])
 def sample():
 	sample = request.args.get('h')
-	cur = db.session.execute("select count(*) as count, names from (select group_concat(distinct ref.name) as names, hex(ref.block) from (select name,block from bin join b2b on bin.bin = b2b.bin where bin.ref=true) as ref join b2b as test on ref.block = test.block where test.bin=unhex(:bin) group by ref.block) as res group by res.names order by count desc", {'bin': sample}
-	)
+	cur = db.session.execute("select count(*) as count, names from (select group_concat(distinct ref.name) as names, hex(ref.block) from (select name,block from bin join b2b on bin.bin = b2b.bin where bin.ref=true) as ref join b2b as test on ref.block = test.block where test.bin=unhex(:bin) group by ref.block) as res group by res.names order by count desc", {'bin': sample})
 	entries = cur.fetchall()
 	return render_template('sample.html', sample=sample, entries=entries)
+
 
 @app.route('/log')
 def log():
