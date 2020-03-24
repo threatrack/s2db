@@ -7,9 +7,9 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 
 config = configparser.ConfigParser()
-config_path=os.path.join(os.path.abspath(os.path.dirname(__file__)),"../b3db.ini")
+config_path=os.path.expanduser("~") + "/.s2db/s2db.ini"
 config.read(config_path)
-app.config['SQLALCHEMY_DATABASE_URI'] = config['db']['path']
+app.config['SQLALCHEMY_DATABASE_URI'] = config['db']['select']
 app.config['UPLOAD_FOLDER'] = config['storage']['path']
 app.config['LOG_FILE_PATH'] = config['log']['path']
 
@@ -19,7 +19,6 @@ db = SQLAlchemy(app)
 @app.route('/')
 def index():
 	return render_template('index.html')
-
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
@@ -52,36 +51,36 @@ def samples():
 	return render_template('samples.html', entries=entries)
 
 
-@app.route('/blocks', methods=['GET'])
-def blocks():
+@app.route('/seqs', methods=['GET'])
+def seqs():
 	sample = request.args.get('h')
 	cur = db.session.execute("""
 select names, rep from (
-	select group_concat(distinct ref.name) as names, ref.block as block from (
-		select name,block from bin join b2b on bin.bin = b2b.bin where bin.ref=true
+	select group_concat(distinct ref.name) as names, ref.seq as seq from (
+		select name,seq from bin join bin2seq on bin.bin = bin2seq.bin where bin.ref=true
 	) as ref
-	join b2b as test on ref.block = test.block where test.bin=unhex(:bin)
-	group by ref.block
+	join bin2seq as test on ref.seq = test.seq where test.bin=unhex(:bin)
+	group by ref.seq
 ) as res
-join block on res.block = block.block
-order by block.type desc
+join seq on res.seq = seq.seq
+order by seq.type desc
 	""", {'bin': sample})
 	entries = cur.fetchall()
-	return render_template('blocks.html', sample=sample, entries=entries)
+	return render_template('seqs.html', sample=sample, entries=entries)
 
 
-@app.route('/block', methods=['GET'])
-def block():
+@app.route('/seq', methods=['GET'])
+def seq():
 	h = request.args.get('h')
-	cur = db.session.execute('select hex(block) as block,type,rep from block where block=unhex(:block)', {'block': h})
+	cur = db.session.execute('select hex(seq) as seq,type,rep from seq where seq=unhex(:seq)', {'seq': h})
 	entries = cur.fetchall()
-	return render_template('block.html', block=h, entries=entries)
+	return render_template('seq.html', seq=h, entries=entries)
 
 
 @app.route('/sample', methods=['GET'])
 def sample():
 	sample = request.args.get('h')
-	cur = db.session.execute("select count(*) as count, names from (select group_concat(distinct ref.name) as names, hex(ref.block) from (select name,block from bin join b2b on bin.bin = b2b.bin where bin.ref=true) as ref join b2b as test on ref.block = test.block where test.bin=unhex(:bin) group by ref.block) as res group by res.names order by count desc", {'bin': sample})
+	cur = db.session.execute("select count(*) as count, names from (select group_concat(distinct ref.name) as names, hex(ref.seq) from (select name,seq from bin join bin2seq on bin.bin = bin2seq.bin where bin.ref=true) as ref join bin2seq as test on ref.seq = test.seq where test.bin=unhex(:bin) group by ref.seq) as res group by res.names order by count desc", {'bin': sample})
 	entries = cur.fetchall()
 	return render_template('sample.html', sample=sample, entries=entries)
 

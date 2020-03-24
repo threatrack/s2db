@@ -1,22 +1,24 @@
 {% extends 'base.html' %}
 
 {% block head %}
-	<title>b3db: Bad Basic Block Database</title>
+	<title>s2db: Software Sequences Database</title>
 {% endblock %}
       
 {% block main %}
-	<h5>Processed samples</h5>
+	<h5>{{ seq|safe }}</h5>
 	<table class="table table-bordered table-hover">
 	<thead class="thead-dark">
 		<tr>
-			<th scope="col">Hash</th>
+			<th scope="col">Sequence: {{ seq|safe }}</th>
 		</tr>
 	</thead>
 	<tbody>
 	{% for entry in entries %}
-		<tr>
-			<td><a href="sample?h={{ entry.bin|safe }}">{{ entry.bin|safe }}</a></td>
-		</tr>
+<tr><td scope="col">
+<pre>
+{{ entry.rep|safe }}
+</pre>
+</tr></td>
 	{% endfor %}
 	</tbody>
 	</table>

@@ -1,16 +1,30 @@
-# b3db: Bad Basic Block Database
+# s2db: Software Sequences Database
 
-![b3db: Bad Basic Block Database web app](images/01-index.png)
+![s2db: Software Sequences Database web app](images/01-index.png)
 
 ## Install
 
-On CentOS 7 just run:
+### On CentOS 7
+
+Set database passwords:
+
+```
+export MYSQL_ROOT_PASS="changeme"
+export S2DB_ADMIN_PASS="changeme"
+export S2DB_SELECT_PASS="changeme"
+export S2DB_INSERT_PASS="changeme"
+```
+
+Then run:
 
 ```
 ./el7-install.sh
 ```
 
-On other systems: Do the equivalent of the `./el7-install.sh` script.
+
+### On other systems
+
+Do the equivalent of the `./el7-install.sh` script, see [On CentOS 7] for usage of that script.
 Eventually, this is planned to be moved entirely to Python and installable via pip,
 so it won't require bash for setup. 
 
@@ -18,7 +32,7 @@ so it won't require bash for setup.
 
 ### Config file
 
-Edit `b2db.ini`.
+Edit `~/.s2db/s2db.ini`.
 
 ### Batch import reference set from command line
 
@@ -26,10 +40,10 @@ Place your reference samples in the `samples` folder.
 Then run:
 
 ```
-for s in samples/*; do python3 b3db/extract_features.py $s; done
-mysql -ub3user -p"$DATABASE_USER_PASSWORD" <<SETASREF
-use b3
-update bin set isref = true;
+for s in samples/*; do python3 sequencer/sequencer.py $s; done
+mysql -us2user -p"$S2DB_ADMIN_PASS" <<SETASREF
+use s2db
+update bin set ref = true;
 SETASREF
 ```
 
@@ -44,7 +58,7 @@ python3 app.py # runs flask app
 And in parallel you must run:
 
 ```
-python3 import_service.py 2>&1 > /home/user/b3db.log # runs importer "service"
+python3 import_service.py 2>&1 > ~/.s2db/upload.log # runs importer "service"
 ```
 
 ### Check reference software set in web app
@@ -78,41 +92,11 @@ Otherwise the Python error output is written to the log, which you can report vi
 
 ![Blocks view: asm](images/07-blocks_01_asm.png)
 
-5. Optionally, you can view all uploaded samples by clicking menu item 'Samples':
+5. Optionally, you can view all uploaded samples by clicking menu item `Samples`:
 
 ![Samples view](images/03-samples.png)
 
 ## Database stuff
-
-## Query data base
-
-- `/sample` view for sample with hash `8C1947630B8B9080C7B7E1E6E6D101E0543CD3B224D0A9F4AF80BB201A3EF90E`:
-
-```
-select count(*) as count, names from (
-	select group_concat(distinct ref.name) as names, hex(ref.block) from (
-		select name,block from bin join b2b on bin.bin = b2b.bin where bin.ref=true
-	) as ref
-	join b2b as test on ref.block = test.block where test.bin=unhex('8C1947630B8B9080C7B7E1E6E6D101E0543CD3B224D0A9F4AF80BB201A3EF90E')
-	group by ref.block
-) as res
-group by res.names
-order by count desc
-```
-
-- `/blocks` view for sample with hash `8C1947630B8B9080C7B7E1E6E6D101E0543CD3B224D0A9F4AF80BB201A3EF90E`:
-
-```
-select names, rep from (
-	select group_concat(distinct ref.name) as names, ref.block as block from (
-		select name,block from bin join b2b on bin.bin = b2b.bin where bin.ref=true
-	) as ref
-	join b2b as test on ref.block = test.block where test.bin=unhex('8C1947630B8B9080C7B7E1E6E6D101E0543CD3B224D0A9F4AF80BB201A3EF90E')
-	group by ref.block
-) as res
-join block on res.block = block.block
-order by block.type desc
-```
 
 ### Add individual sample to reference set
 

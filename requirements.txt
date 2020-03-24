@@ -3,5 +3,6 @@ virustotal3
 requests
 pefile
 capstone
+python-magic
 flask_sqlalchemy
 flask-bootstrap
