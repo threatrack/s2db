@@ -4,12 +4,22 @@ import sys
 import time
 import datetime
 
+config = configparser.ConfigParser()
+
+config_paths = [
+	os.path.expanduser("~") + "/.s2db/s2db.ini",
+	'/etc/s2db/s2db.ini',
+	'/etc/s2db.ini',
+	'./s2db.ini'
+]
+for config_path in config_paths:
+	if config.read(config_path) != []:
+		break
+
+storage_path = config['storage']['path']
+
 if __name__ == '__main__':
 	self_path = os.path.abspath(os.path.dirname(__file__))
-	config = configparser.ConfigParser()
-	config_path=os.path.expanduser("~") + "/.s2db/s2db.ini"
-	config.read(config_path)
-	storage_path = config['storage']['path']
 
 	print(__file__+' started ...', flush=True)
 

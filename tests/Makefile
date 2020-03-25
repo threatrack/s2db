@@ -3,7 +3,7 @@ CC_x64=x86_64-w64-mingw32-gcc
 
 all: \
 	aO0_x64.exe aO3_x64.exe aO3_x64_upx.exe aO0_x86.exe aO3_x86.exe aO3_x86_upx.exe \
-	bO0_x64.exe bO3_x64.exe bO3_x64_upx.exe bO0_x86.exe bO3_x86.exe bO3_x86_upx.exe\
+	bO0_x64.exe bO3_x64.exe bO3_x64_upx.exe bO0_x86.exe bO3_x86.exe bO3_x86_upx.exe \
 	cO0_x64.exe cO3_x64.exe cO3_x64_upx.exe cO0_x86.exe cO3_x86.exe cO3_x86_upx.exe
 
 %O0_x64.exe: %.c

@@ -9,12 +9,14 @@
 	<table class="table table-bordered table-hover">
 	<thead class="thead-dark">
 		<tr>
+			<th scope="col">Name (<b>click to add to reference set</b>)</th>
 			<th scope="col">Hash</th>
 		</tr>
 	</thead>
 	<tbody>
 	{% for entry in entries %}
 		<tr>
+			<td><a href="ref?h={{ entry.bin|safe }}">{{ entry.name|safe }}</a></td>
 			<td><a href="sample?h={{ entry.bin|safe }}">{{ entry.bin|safe }}</a></td>
 		</tr>
 	{% endfor %}

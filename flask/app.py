@@ -7,11 +7,20 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 
 config = configparser.ConfigParser()
-config_path=os.path.expanduser("~") + "/.s2db/s2db.ini"
-config.read(config_path)
-app.config['SQLALCHEMY_DATABASE_URI'] = config['db']['select']
+
+config_paths = [
+	os.path.expanduser("~") + "/.s2db/s2db.ini",
+	'/etc/s2db/s2db.ini',
+	'/etc/s2db.ini',
+	'./s2db.ini'
+]
+for config_path in config_paths:
+	if config.read(config_path) != []:
+		break
+app.config['SQLALCHEMY_DATABASE_URI'] = config['db']['admin']
 app.config['UPLOAD_FOLDER'] = config['storage']['path']
 app.config['LOG_FILE_PATH'] = config['log']['path']
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
 
 db = SQLAlchemy(app)
 
@@ -36,16 +45,27 @@ def upload():
 		return redirect(url_for('upload', filename=filename))
 	return render_template('upload.html')
 
-
-@app.route('/ref')
+@app.route('/ref', methods=['GET'])
 def ref():
+	sample = request.args.get('h')
+	if sample:
+		# add sample to ref set
+		print("ja lol ey")
+		db.session.execute('update bin set ref = true where bin=unhex(:bin)', {'bin': sample})
+		db.session.commit()
 	cur = db.session.execute('select name, hex(bin) as bin from bin where ref = True order by name asc')
 	entries = cur.fetchall()
 	return render_template('ref.html', entries=entries)
 
 
-@app.route('/samples')
+@app.route('/samples', methods=['GET'])
 def samples():
+	sample = request.args.get('h')
+	if sample:
+		print("noooo")
+		# remove sample from ref set
+		db.session.execute('update bin set ref = false where bin=unhex(:bin)', {'bin': sample})
+		db.session.commit()
 	cur = db.session.execute('select name, hex(bin) as bin from bin where ref = False order by name asc')
 	entries = cur.fetchall()
 	return render_template('samples.html', entries=entries)

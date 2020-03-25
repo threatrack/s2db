@@ -32,7 +32,7 @@ mysql -u root -p"${MYSQL_ROOT_PASS}" -e "DELETE FROM mysql.user WHERE User=''"
 mysql -u root -p"${MYSQL_ROOT_PASS}" -e "DELETE FROM mysql.db WHERE Db='test' OR Db='test\_%'"
 mysql -u root -p"${MYSQL_ROOT_PASS}" -e "FLUSH PRIVILEGES"
 
-mysql -u root -p"${MYSQL_ROOT_PASS}" -e "delete from mysql.user WHERE User='s2db%'"
+mysql -u root -p"${MYSQL_ROOT_PASS}" -e "delete from mysql.user where user like 's2db%'"
 mysql -u root -p"${MYSQL_ROOT_PASS}" -e "drop database s2db"
 
 mysql -u root -p"${MYSQL_ROOT_PASS}" -e "create database s2db character set utf8;"
@@ -40,8 +40,8 @@ mysql -u root -p"${MYSQL_ROOT_PASS}" -e "create user 's2db_admin'@'localhost' id
 mysql -u root -p"${MYSQL_ROOT_PASS}" -e "grant all on s2db.* to 's2db_admin' identified by '${S2DB_ADMIN_PASS}';"
 mysql -u root -p"${MYSQL_ROOT_PASS}" -e "create user 's2db_select'@'localhost' identified by '${S2DB_SELECT_PASS}';"
 mysql -u root -p"${MYSQL_ROOT_PASS}" -e "grant select on s2db.* to 's2db_select' identified by '${S2DB_SELECT_PASS}';"
-mysql -u root -p"${MYSQL_ROOT_PASS}" -e "create user 's2db_inset'@'localhost' identified by '${S2DB_INSET_PASS}';"
-mysql -u root -p"${MYSQL_ROOT_PASS}" -e "grant select on s2db.* to 's2db_insert' identified by '${S2DB_INSERT_PASS}';"
+mysql -u root -p"${MYSQL_ROOT_PASS}" -e "create user 's2db_insert'@'localhost' identified by '${S2DB_INSERT_PASS}';"
+mysql -u root -p"${MYSQL_ROOT_PASS}" -e "grant insert on s2db.* to 's2db_insert' identified by '${S2DB_INSERT_PASS}';"
 mysql -u root -p"${MYSQL_ROOT_PASS}" -e "FLUSH PRIVILEGES"
 
 mysql -u s2db_admin -p"${S2DB_ADMIN_PASS}" <<DBSETUP

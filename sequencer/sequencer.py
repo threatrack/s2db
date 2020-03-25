@@ -24,8 +24,15 @@ class Sequencer:
 
 	def commit(self):
 		config = configparser.ConfigParser()
-		config_path=os.path.expanduser("~") + "/.s2db/s2db.ini"
-		config.read(config_path)
+		config_paths = [
+			os.path.expanduser("~") + "/.s2db/s2db.ini",
+			'/etc/s2db/s2db.ini',
+			'/etc/s2db.ini',
+			'./s2db.ini'
+		]
+		for config_path in config_paths:
+			if config.read(config_path) != []:
+				break
 		db_base = automap_base()
 		db_engine = sqlalchemy.create_engine(config['db']['insert'])
 		db_base.prepare(db_engine, reflect=True)

@@ -9,14 +9,14 @@
 	<table class="table table-bordered table-hover">
 	<thead class="thead-dark">
 		<tr>
-			<th scope="col">Software</th>
+			<th scope="col">Software (<b>click to remove from reference set</b>)</th>
 			<th scope="col">Hash</th>
 		</tr>
 	</thead>
 	<tbody>
 	{% for entry in entries %}
 		<tr>
-			<td>{{ entry.name|safe }}</td>
+			<td><a href="samples?h={{ entry.bin|safe }}">{{ entry.name|safe }}</a></td>
 			<td><a href="sample?h={{ entry.bin|safe }}">{{ entry.bin|safe }}</a></td>
 		</tr>
 	{% endfor %}
