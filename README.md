@@ -47,8 +47,6 @@ update bin set ref = true;
 SETASREF
 ```
 
-**TODO:** Allow adding uploaded samples to reference set via web app.
-
 ### Running the web service 
 
 ```
@@ -105,8 +103,6 @@ Otherwise the Python error output is written to the log, which you can report vi
 ```
 update bin set ref = true where bin=unhex('32159d2a16397823bc882ddd3cd77ecdbabe0fde934e62f297b8ff4d7b89832a');
 ```
-
-**TODO: Allow adding sample to reference set via web app.**
 
 ## TODO
 
