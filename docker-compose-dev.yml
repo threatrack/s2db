@@ -1,0 +1,49 @@
+version: "3.7"
+services:
+  web:
+    build:
+      context: .
+      dockerfile: docker/web.Dockerfile
+    depends_on:
+      - db
+    container_name: s2db_web
+    restart: unless-stopped
+    user: ${S2DB_DOCKER_UID}
+    ports:
+      - "127.0.0.1:443:5000"
+    environment:
+      - FLASK_RUN_HOST=0.0.0.0
+      - FLASK_RUN_PORT=5000
+    volumes:
+      - ./s2db:/opt/s2db # FOR DEV ONLY
+      - ./s2db-data-web:/var/s2db
+  sequencer:
+    build:
+      context: .
+      dockerfile: docker/sequencer.Dockerfile
+    depends_on:
+#      - web
+      - db
+    container_name: s2db_sequencer
+    restart: unless-stopped
+    user: ${S2DB_DOCKER_UID}
+    volumes:
+      - ./s2db:/opt/s2db # FOR DEV ONLY
+      - ./s2db-data-web:/var/s2db
+  db:
+    image: postgres
+    container_name: s2db_db
+    restart: unless-stopped
+    ports: # FOR DEV ONLY
+      - "127.0.0.1:5432:5432" # FOR DEV ONLY
+    environment:
+      POSTGRES_USER: s2db_user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: s2db
+    volumes:
+      - ./s2db-data-db:/var/lib/postgresql/data
+volumes:
+  s2db-data-web:
+  s2db-data-db:
+  s2db:
+

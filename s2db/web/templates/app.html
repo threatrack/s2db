@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="description" content="s2db: Software Sequences Database. Finds code reuse in binaries on software sequences (strings, basic blocks, etc.) level..">
+
+	<title>s2db: Software Sequence Database</title>
+<style>
+body {
+	color: #eee;
+	background: #121212;
+	font-family: monospace;
+}
+
+a {
+	color: #809fff;
+}
+
+table {
+	width: 100%;
+}
+
+table, th, td {
+	border: 1px solid #888;
+	padding: 15px;
+}
+
+div.representation {
+	max-height: 10em;
+	max-width: 20em;
+	overflow: scroll scroll;
+	white-space: pre;
+	font-family: monospace;
+	display: block;
+	font-size: smaller;
+}
+
+div.signature {
+	max-width: 20em;
+	overflow: scroll hidden;
+	white-space: pre;
+	font-family: monospace;
+	display: block;
+	font-size: smaller;
+}
+
+div.name {
+	white-space: pre;
+	font-family: monospace;
+	font-size: 75%;
+}
+
+div.hash {
+	white-space: pre;
+	font-family: monospace;
+	font-size: 50%;
+}
+</style>
+</head>
+<body>
+<div id="app-main">
+<noscript>
+<p>
+You need to enable JavaScript to run this app.
+</p>
+</noscript>
+</div>
+
+<template id="--template-app">
+<font color="#0000dd">s2db.</font><font color="#ffffff">THREAT</font><font color="#d00000">rack</font>
+|
+<a href="#/softwares">Softwares</a>
+|
+<input id="software-search" type="text" placeholder="Search SHA256..." pattern="[A-Fa-f0-9]{40}" />
+<button onClick="location.hash='#/software/'+document.querySelector('#software-search').value">Search</button>
+|
+<input id="file-upload" type="file" name="file" />
+<button onClick="upload()">Upload</button>
+|
+<p id="upload-feedback"></p>
+<hr/>
+<div id="app-main-view"></div>
+</template>
+
+<template id="--template-softwares-table">
+<table>
+<thead>
+<tr><th id="hash">Hash</th><th id="parent">Parent</th><th id="class">Class</th><th id="family">Family</th><th id="mime">MIME</th><th id="name">Name</th></tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+</template>
+
+<template id="--template-softwares-row">
+<tr><td headers="hash" dohref="hash"></td><td headers="parent"></td><td headers="class"></td><td headers="family"></td><td headers="mime"></td><td headers="name"></td></tr>
+</template>
+
+
+<template id="--template-software-table">
+<table>
+<thead>
+<tr><th id="class">Class</th><th id="family">Family</th><th id="type">Type</th><th id="representation">Representation</th><th id=signature">Signature</th><th id="name">Name</th><th id="hash">Hash</th></tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+</template>
+
+<template id="--template-software-row">
+<tr><td headers="class"></td><td headers="family"></td><td headers="type"></td><td headers="representation"></td><td headers="signature"></td><td headers="name"></td><td headers="hash"></td></tr>
+</template>
+
+
+<script type="text/javascript">
+(function() {
+	var escapeElement = document.createElement("textarea");
+	window.escapeHTML = function(html) {
+		escapeElement.textContent = html;
+		return escapeElement.innerHTML;
+	};
+})();
+
+function upload() {
+	document.querySelector("#upload-feedback").textContent = "Uploading...";
+	const file = document.querySelector('input[type="file"]');
+	const form_data = new FormData()
+	form_data.append("file", file.files[0]);
+	
+	fetch("api/v0/software/", {
+		method: "POST",
+		body: form_data
+	})
+	.then(response => response.json())
+	.then(result => {
+		document.querySelector("#upload-feedback").textContent = "Uploaded: "+result.software;
+	})
+	.catch(error => {
+		document.querySelector("#upload-feedback").textContent = "Error: "+error;
+	});
+}
+
+const fetch_state = {error: -1, wait: 0, ok: 1}
+
+function fetch_callback_target(url, func, target, template) {
+	func(fetch_state.wait, target, template, null);
+	fetch(url)//,{cache: "force-cache"})
+	.then(response => {
+		if (!response.ok) {
+			throw new Error(response.statusText);
+		}
+		return response.json();
+	})
+	.then(result => {func(fetch_state.ok, target, template, result);})
+	.catch(error => {func(fetch_state.error, target, template, error);});
+}
+
+function fill_table(state, target, template, data) {
+	if (state == 0) {
+		target.innerHTML = "<p>Loading...</p>"
+		return;
+	} else if (state == fetch_state.error) {
+		target.innerHTML = "<p>"+window.escapeHTML(data)+"</p>"
+		return;
+	} 
+	let tablet = document.querySelector("#--template-"+template+"-table");
+	let table = tablet.content.cloneNode(true);
+	let tbody = table.querySelector("tbody");
+	let trt = document.querySelector("#--template-"+template+"-row");
+	for (row of data) {
+		let tr = trt.content.cloneNode(true);
+		let td = tr.querySelectorAll("td");
+		for (t of td) {
+			t.textContent = row[t.headers];
+		}
+		tbody.appendChild(tr);
+	}
+	target.replaceChildren(table);
+}
+
+function locationHashChanged() {
+	let paths = location.hash.split("/");
+	console.log(paths);
+	let app = document.querySelector("#app-main");
+	let maint = document.querySelector("#--template-app");
+	let main = maint.content.cloneNode(true);
+	app.replaceChildren(main);
+	let main_view = document.querySelector("#app-main-view");
+	if (paths[1] == "softwares") {
+		fetch_callback_target("api/v0/softwares/", fill_table, main_view, "softwares");
+	} else if (paths[1] == "software") {
+		fetch_callback_target("api/v0/softwaressequences/"+paths[2], fill_table, main_view, "software");
+	}
+}
+window.onhashchange = locationHashChanged;
+locationHashChanged();
+</script>
+
+</body>
+</html>
+
